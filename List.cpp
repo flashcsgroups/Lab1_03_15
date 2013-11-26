@@ -4,11 +4,19 @@ template <typename T>
 class List
 {
 public:
+    enum errors {outOfRange, doesNotExist}
+
     List()
     {
         first = 0;
         last = 0;
         length = 0;
+    }
+
+    ~List()
+    {
+        clear();
+        delete this;
     }
 
     void addFirst(T* element)
@@ -28,43 +36,43 @@ public:
     void addAfter(T* element, int index)
     {
         if(index >= length)
-            throw "fail";
+            throw outOfRange;
         Node<T>* current = first;
         for(int iterator = 0; iterator < index; iterator++)
-            current = current->getNext();
-        Node<T>* node = new Node<T>(*element, current, current->getNext());
-        if(node->getNext())
-            node->getNext()->getPrevious() = node;
+            current = current->next;
+        Node<T>* node = new Node<T>(*element, current, current->next);
+        if(node->next)
+            node->next->previous = node;
         else
             last = node;
-        node->getPrevious()->getNext() = node;
+        node->previous->next = node;
         length++;
     }
 
     void addAfter(T* element, Node<T>* after)
     {
         if(!exists(after))
-            throw "fail";
-        Node<T>* node = new Node<T>(*element, after, after->getNext());
-        if(node->getNext())
-            node->getNext()->getPrevious() = node;
+            throw doesNotExist;
+        Node<T>* node = new Node<T>(*element, after, after->next);
+        if(node->next)
+            node->next->previous = node;
         else
             last = node;
-        node->getPrevious()->getNext() = node;
+        node->previous->next = node;
         length++;
     }
 
     void addBefore(T* element, int index)
     {
         if(index >= length)
-            throw "fail";
+            throw outOfRange;
         Node<T>* current = first;
         for(int iterator = 0; iterator < index; iterator++)
-            current = current->getNext();
-        Node<T>* node = new Node<T>(*element, current->getPrevious(), current);
-        node->getNext()->getPrevious() = node;
-        if(node->getPrevious())
-            node->getPrevious()->getNext() = node;
+            current = current->next;
+        Node<T>* node = new Node<T>(*element, current->previous, current);
+        node->next->previous = node;
+        if(node->previous)
+            node->previous->next = node;
         else
             first = node;
         length++;
@@ -73,11 +81,11 @@ public:
     void addBefore(T* element, Node<T>* before)
     {
         if(!exists(before))
-            throw "fail";
-        Node<T>* node = new Node<T>(*element, before->getPrevious(), before);
-        node->getNext()->getPrevious() = node;
-        if(node->getPrevious())
-            node->getPrevious()->getNext() = node;
+            throw doesNotExist;
+        Node<T>* node = new Node<T>(*element, before->previous, before);
+        node->next->previous = node;
+        if(node->previous)
+            node->previous->next = node;
         else
             first = node;
         length++;
@@ -85,22 +93,22 @@ public:
 
     T getFirst()
     {
-        return first->getData();
+        return first->data;
     }
 
     T getLast()
     {
-        return last->getData();
+        return last->data;
     }
 
     T getOnIndex(int index)
     {
         if(index >= length)
-            throw "fail";
+            throw outOfRange;
         Node<T>* current = first;
         for(int iterator = 0; iterator < index; iterator++)
-            current = current->getNext();
-        return current->getData();
+            current = current->next;
+        return current->data;
     }
 
     bool exists(Node<T>* node)
@@ -110,7 +118,7 @@ public:
         {
             if(current==node)
                 return true;
-            current = current->getNext();
+            current = current->next;
         }
         return false;
     }
@@ -121,9 +129,10 @@ public:
         Node<T>* current = first;
         while(current)
         {
-            reversed->addFirst(current);
-            current = current->getNext();
+            reversed->addFirst(current->data);
+            current = current->next;
         }
+        return reversed;
     }
 
     void clear()
@@ -132,7 +141,7 @@ public:
         while(current)
         {
             Node<T>* toDelete = current;
-            current = current->getNext();
+            current = current->next;
             delete toDelete;
         }
         first = 0;
@@ -143,10 +152,23 @@ public:
     void setOnIndex(int index, T data)
     {
         if(index >= length)
-            throw "fail";
+            throw outOfRange;
         Node<T>* current = first;
         for(int iterator = 0; iterator < index; iterator++)
-            current = current->getNext();
+            current = current->next;
+        current->data = data;
+    }
+
+    List<T>* copy()
+    {
+        List<T>* temp = new List<T>();
+        Node<T>* current = first;
+        while(current)
+        {
+            temp->addLast(current->data);
+            current = current->next;
+        }
+        return temp;
     }
 private:
     Node<T>* first;
