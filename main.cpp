@@ -1,7 +1,13 @@
 #include <iostream>
+#include "List.cpp"
 
 using namespace std;
-enum inputResult {EOL, ERROR}
+enum inputResult {EOL, ERROR};
+
+void add(List<int>*, int);
+void add(List<int>*, List<int>*);
+void multiply(List<int>*, int);
+
 int main()
 {
     int tryCount = 0;
@@ -15,41 +21,60 @@ int main()
     		int inputCount = 0;
 		    while(true)
 		    {
-		    	cin.get(buffer);
+		    	buffer = cin.get();
 		    	if(buffer==10)
 		    		throw EOL;
 		    	if(buffer>55 || buffer<48 || inputCount>300)
 		    		throw ERROR;
-		    	input.addLast(buffer);
+		    	input->addLast(buffer-48);
 		    	inputCount++;
 		    }
     	}
     	catch(inputResult result)
     	{
     		tryCount++;
-    		switch(result)
-    		{
-    			case EOL:
-    				break;
-    			case ERROR:
-    				cout << "Incorrect input, ";
-    				if(tryCount<2)
-    					cout << "try again, enter string to process: ";
-    				else
-    				{
-    					cout << "exited";
-    					return 1;
-    				}
-    		}
+    		if(result==EOL)
+				break;
+    		else
+				cout << "Incorrect input, ";
+                cin.clear();
+				if(tryCount<2)
+					cout << "try again, enter string to process: ";
+				else
+				{
+					cout << "exited";
+					return 1;
+				}
     	}
     }
-    
+
     List<int>* temp = input->reverse();
     delete input;
     input = temp;
 
-    int index = 0;
+    List<int>* multiplier = new List<int>();
+    multiplier->addLast(1);
     List<int>* output = new List<int>();
+    output->addLast(0);
+    for(int index = 0; index < input->getLength(); index++)
+    {
+        List<int>* temp = multiplier->copy();
+        multiply(temp, input->getOnIndex(index));
+        add(output, temp);
+        delete temp;
+        multiply(multiplier, 8);
+    }
+
+    temp = output->reverse();
+    delete output;
+    output = temp;
+
+    for(int index = 0; index < output->getLength(); index++)
+    {
+        cout << output->getOnIndex(index);
+    }
+    cout << endl;
+    return 0;
 }
 
 void add(List<int>* number, int additive)
@@ -75,7 +100,9 @@ void add(List<int>* number, List<int>* additive)
         int tempNumberDigit, tempAdditiveDigit;
 
         try
+        {
             tempNumberDigit = number->getOnIndex(index);
+        }
         catch(errors e)
         {
             numberEnded = true;
@@ -83,16 +110,18 @@ void add(List<int>* number, List<int>* additive)
         }
 
         try
+        {
             tempAdditiveDigit = additive->getOnIndex(index);
+        }
         catch(errors e)
         {
             additiveEnded = true;
             break;
         }
 
-        temp = tempNumberDigit + tempAdditiveDigit + additionalNumber;
-        additionalNumber = temp % 10;
-        temp /= 10;
+        int temp = tempNumberDigit + tempAdditiveDigit + additionalNumber;
+        additionalNumber = temp / 10;
+        temp %= 10;
         number->setOnIndex(index, temp);
 
         index++;
@@ -109,10 +138,10 @@ void add(List<int>* number, List<int>* additive)
         {
             int temp = number->getOnIndex(index);
             temp+=additionalNumber;
-            additionalNumber = temp % 10;
-            temp /= 10;
+            additionalNumber = temp / 10;
+            temp %= 10;
             number->setOnIndex(index, temp);
-            index++
+            index++;
         }
     }
     else if(numberEnded)
@@ -121,16 +150,18 @@ void add(List<int>* number, List<int>* additive)
         {
             int temp;
             try
+            {
                 temp = additive->getOnIndex(index);
-            catch(error e)
+            }
+            catch(errors e)
             {
                 additiveEnded = true;
                 temp = 0;
             }
 
             temp += additionalNumber;
-            additionalNumber = temp % 10;
-            temp /= 10;
+            additionalNumber = temp / 10;
+            temp %= 10;
             if(!additiveEnded || temp)
                 number->addLast(temp);
             index++;
@@ -140,10 +171,18 @@ void add(List<int>* number, List<int>* additive)
 
 void multiply(List<int>* number, int multiplier)
 {
-    List<int> temp = number->copy;
-    for(int i = 0; i < multiplier; i++)
+    if(multiplier)
     {
-        add(number, &temp);
+        List<int>* temp = number->copy();
+        for(int i = 1; i < multiplier; i++)
+        {
+            add(number, temp);
+        }
+        delete temp;
     }
-    delete temp;
+    else
+    {
+        number->clear();
+        number->addLast(0);
+    }
 }

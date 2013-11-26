@@ -1,10 +1,13 @@
 #include "Node.cpp"
 
+#include <iostream>
+
+enum errors {outOfRange, doesNotExist};
+
 template <typename T>
 class List
 {
 public:
-    enum errors {outOfRange, doesNotExist}
 
     List()
     {
@@ -16,20 +19,27 @@ public:
     ~List()
     {
         clear();
-        delete this;
     }
 
-    void addFirst(T* element)
+    void addFirst(T element)
     {
-        Node<T>* node = new Node<T>(*element, 0, first);
+        Node<T>* node = new Node<T>(element, 0, first);
+        if(first)
+            first->previous = node;
         first = node;
+        if(!last)
+            last = node;
         length++;
     }
 
-    void addLast(T* element)
+    void addLast(T element)
     {
-        Node<T>* node = new Node<T>(*element, last, 0);
+        Node<T>* node = new Node<T>(element, last, 0);
+        if(last)
+            last->next = node;
         last = node;
+        if(!first)
+            first = node;
         length++;
     }
 
@@ -93,16 +103,23 @@ public:
 
     T getFirst()
     {
-        return first->data;
+        return *(first->data);
     }
 
     T getLast()
     {
-        return last->data;
+        return *(last->data);
+    }
+
+    int getLength()
+    {
+        return length;
     }
 
     T getOnIndex(int index)
     {
+        if(!first)
+            throw doesNotExist;
         if(index >= length)
             throw outOfRange;
         Node<T>* current = first;
@@ -127,7 +144,7 @@ public:
     {
         List<T>* reversed = new List<T>();
         Node<T>* current = first;
-        while(current)
+        while(current!=0)
         {
             reversed->addFirst(current->data);
             current = current->next;

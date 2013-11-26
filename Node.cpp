@@ -2,20 +2,14 @@ template <typename T>
 class Node
 {
 public:
-    T* data;
+    T data;
     Node* next;
     Node* previous;
 
 	Node(T data, Node* previous, Node* next)
 	{
-	    this->data = &data;
+	    this->data = data;
 	    this->previous = previous;
 	    this->next = next;
-	}
-
-	~Node()
-	{
-		delete data;
-		delete this;
 	}
 };
