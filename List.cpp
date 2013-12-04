@@ -1,14 +1,25 @@
-#include "Node.cpp"
-
-#include <iostream>
-
 enum errors {outOfRange, doesNotExist};
+
+template <typename T>
+class Node
+{
+public:
+    T data;
+    Node* next;
+    Node* previous;
+
+    Node(T data, Node* previous, Node* next)
+    {
+        this->data = data;
+        this->previous = previous;
+        this->next = next;
+    }
+};
 
 template <typename T>
 class List
 {
 public:
-
     List()
     {
         first = 0;
@@ -43,74 +54,6 @@ public:
         length++;
     }
 
-    void addAfter(T* element, int index)
-    {
-        if(index >= length)
-            throw outOfRange;
-        Node<T>* current = first;
-        for(int iterator = 0; iterator < index; iterator++)
-            current = current->next;
-        Node<T>* node = new Node<T>(*element, current, current->next);
-        if(node->next)
-            node->next->previous = node;
-        else
-            last = node;
-        node->previous->next = node;
-        length++;
-    }
-
-    void addAfter(T* element, Node<T>* after)
-    {
-        if(!exists(after))
-            throw doesNotExist;
-        Node<T>* node = new Node<T>(*element, after, after->next);
-        if(node->next)
-            node->next->previous = node;
-        else
-            last = node;
-        node->previous->next = node;
-        length++;
-    }
-
-    void addBefore(T* element, int index)
-    {
-        if(index >= length)
-            throw outOfRange;
-        Node<T>* current = first;
-        for(int iterator = 0; iterator < index; iterator++)
-            current = current->next;
-        Node<T>* node = new Node<T>(*element, current->previous, current);
-        node->next->previous = node;
-        if(node->previous)
-            node->previous->next = node;
-        else
-            first = node;
-        length++;
-    }
-
-    void addBefore(T* element, Node<T>* before)
-    {
-        if(!exists(before))
-            throw doesNotExist;
-        Node<T>* node = new Node<T>(*element, before->previous, before);
-        node->next->previous = node;
-        if(node->previous)
-            node->previous->next = node;
-        else
-            first = node;
-        length++;
-    }
-
-    T getFirst()
-    {
-        return *(first->data);
-    }
-
-    T getLast()
-    {
-        return *(last->data);
-    }
-
     int getLength()
     {
         return length;
@@ -126,18 +69,6 @@ public:
         for(int iterator = 0; iterator < index; iterator++)
             current = current->next;
         return current->data;
-    }
-
-    bool exists(Node<T>* node)
-    {
-        Node<T>* current = first;
-        while(current)
-        {
-            if(current==node)
-                return true;
-            current = current->next;
-        }
-        return false;
     }
 
     List<T>* reverse()
