@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 #include "List.cpp"
 
 using namespace std;
@@ -11,23 +12,24 @@ void multiply(List<int>*, int);
 int main()
 {
     int tryCount = 0;
-    List<int>* input = new List<int>();
+    List<int>* input;
     cout << "Enter string to process: ";
     while(true)
     {
     	try
     	{
+            input = new List<int>();
     		int buffer;
     		int inputCount = 0;
 		    while(true)
 		    {
 		    	buffer = cin.get();
+                inputCount++;
 		    	if(buffer==10)
 		    		throw EOL;
 		    	if(buffer>55 || buffer<48 || inputCount>300)
 		    		throw ERROR;
 		    	input->addLast(buffer-48);
-		    	inputCount++;
 		    }
     	}
     	catch(inputResult result)
@@ -36,15 +38,18 @@ int main()
     		if(result==EOL)
 				break;
     		else
+            {
 				cout << "Incorrect input, ";
-                cin.clear();
+                delete input;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 				if(tryCount<2)
 					cout << "try again, enter string to process: ";
 				else
 				{
-					cout << "exited";
+					cout << "exited" << endl;
 					return 1;
 				}
+            }
     	}
     }
 
